@@ -31,14 +31,21 @@ const SAMPLE_GREETING = [
   "Hello! What's the most exciting thing you've done recently?",
 ];
 
+// Define Message type
+type Message = {
+  id: number;
+  from: "user" | "ai";
+  text: string;
+};
+
 const VoiceChatPanel = () => {
   const [currentAI, setCurrentAI] = useState(0);
   const [listening, setListening] = useState(false);
   const [input, setInput] = useState("");
-  const [messages, setMessages] = useState([
+  const [messages, setMessages] = useState<Message[]>([
     {
       id: 0,
-      from: "ai" as const,
+      from: "ai",
       text: SAMPLE_GREETING[Math.floor(Math.random() * SAMPLE_GREETING.length)],
     },
   ]);
@@ -51,7 +58,7 @@ const VoiceChatPanel = () => {
     // Push user message
     setMessages((msgs) => [
       ...msgs,
-      { id: msgId, from: "user" as const, text: input },
+      { id: msgId, from: "user", text: input },
     ]);
     setMsgId((id) => id + 1);
     // Simulate generic AI response
@@ -60,7 +67,7 @@ const VoiceChatPanel = () => {
         ...msgs,
         {
           id: msgId + 1,
-          from: "ai" as const,
+          from: "ai",
           text: `(${ai.name}) That's interesting! Tell me more.`,
         },
       ]);
@@ -84,7 +91,7 @@ const VoiceChatPanel = () => {
     setMessages([
       {
         id: 0,
-        from: "ai" as const,
+        from: "ai",
         text: SAMPLE_GREETING[Math.floor(Math.random() * SAMPLE_GREETING.length)],
       },
     ]);
@@ -165,3 +172,4 @@ const VoiceChatPanel = () => {
 };
 
 export default VoiceChatPanel;
+
