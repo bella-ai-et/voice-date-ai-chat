@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { SessionLog } from "@/pages/SessionHistory";
 import { Button } from "@/components/ui/button";
-import { history } from "lucide-react";
+import { History } from "lucide-react";
 
 type Props = {
   open: boolean;
@@ -21,7 +21,7 @@ const SessionDetailModal = ({ open, session, onClose }: Props) => {
         <DialogHeader>
           <DialogTitle>
             <span className="flex items-center gap-2">
-              <history size={22} className="text-fuchsia-500" />
+              <History size={22} className="text-fuchsia-500" />
               Session with {session.character_name || "Unknown"}
             </span>
           </DialogTitle>
@@ -66,3 +66,4 @@ const SessionDetailModal = ({ open, session, onClose }: Props) => {
 };
 
 export default SessionDetailModal;
+
