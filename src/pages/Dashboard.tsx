@@ -1,4 +1,3 @@
-
 import { SignedIn, SignedOut, RedirectToSignIn } from "@clerk/clerk-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -29,12 +28,21 @@ const Dashboard = () => {
           <h2 className="text-2xl font-semibold text-fuchsia-700 mb-4">
             Welcome to your Dashboard!
           </h2>
-          <Button
-            className="bg-fuchsia-500 text-white px-6 py-2 rounded-lg font-semibold text-lg shadow transition hover:bg-fuchsia-700"
-            onClick={() => navigate("/speed-date")}
-          >
-            Start New Speed Date
-          </Button>
+          <div className="flex gap-4">
+            <Button
+              className="bg-fuchsia-500 text-white px-6 py-2 rounded-lg font-semibold text-lg shadow transition hover:bg-fuchsia-700"
+              onClick={() => navigate("/speed-date")}
+            >
+              Start New Speed Date
+            </Button>
+            <Button
+              className="bg-fuchsia-100 text-fuchsia-700 font-semibold px-6 py-2 rounded-lg shadow border hover:bg-fuchsia-200 transition"
+              onClick={() => navigate("/session-history")}
+              variant="outline"
+            >
+              Session History
+            </Button>
+          </div>
           <Tabs defaultValue="all" className="w-full md:w-[700px] mt-8">
             <TabsList>
               <TabsTrigger value="all">All Characters</TabsTrigger>

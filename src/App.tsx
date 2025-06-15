@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,6 +7,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Dashboard from "./pages/Dashboard";
 import SpeedDate from "./pages/SpeedDate";
+import SessionHistory from "./pages/SessionHistory";
 import { SignedIn, SignedOut } from "@clerk/clerk-react";
 
 const queryClient = new QueryClient();
@@ -44,6 +44,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <SpeedDate />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/session-history"
+            element={
+              <ProtectedRoute>
+                <SessionHistory />
               </ProtectedRoute>
             }
           />
