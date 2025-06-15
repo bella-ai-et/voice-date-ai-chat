@@ -95,18 +95,67 @@ const VoiceChatPanel = () => {
     }
   };
 
-  const handleNextAI = () => {
+  // --- NEW: Generate & show AI feedback after each session ---
+  const generateAIFeedback = async ({
+    transcript,
+    aiName,
+    aiPersonality,
+  }: {
+    transcript: string;
+    aiName: string;
+    aiPersonality: string;
+  }): Promise<string | null> => {
+    try {
+      const res = await fetch(
+        "https://xqnlnqqoobwybgcusqly.functions.supabase.co/feedback-ai-character",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ transcript, aiName, aiPersonality }),
+        }
+      );
+      const data = await res.json();
+      return data.feedback || null;
+    } catch (e) {
+      console.error("Failed to fetch AI feedback:", e);
+      return null;
+    }
+  };
+
+  const handleNextAI = async () => {
     // Store conversation transcript before switching, if user is logged in
     if (user && user.id && ai && messages.length > 1) {
-      const transcript = messages.map(({ from, text }) => `${from}: ${text}`).join("\n");
+      const transcript = messages
+        .map(({ from, text }) => `${from}: ${text}`)
+        .join("\n");
       const now = new Date().toISOString();
+
+      // 1. Generate AI feedback and show to user
+      const feedback = await generateAIFeedback({
+        transcript,
+        aiName: ai.name,
+        aiPersonality: ai.personality,
+      });
+      if (feedback) {
+        toast({
+          title: "AI Feedback",
+          description: feedback,
+          variant: "default",
+        });
+      }
+
+      // 2. Save log + feedback to Supabase
       saveConversationLog({
         user_id: user.id,
         character_id: ai.id,
         start_time: startTimeRef.current,
         end_time: now,
         conversation_transcript: transcript,
+        ai_feedback: feedback || "",
       });
+
       startTimeRef.current = now;
     } else {
       startTimeRef.current = new Date().toISOString();
@@ -123,7 +172,9 @@ const VoiceChatPanel = () => {
     setMsgId(1);
     toast({
       title: "Switched date!",
-      description: `Now talking with ${aiCharacters[(currentAI + 1) % aiCharacters.length].name}`,
+      description: `Now talking with ${
+        aiCharacters[(currentAI + 1) % aiCharacters.length].name
+      }`,
     });
   };
 
