@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { Mic, MicOff, ArrowRight } from "lucide-react";
+import { Mic, MicOff, ArrowRight, Bookmark, BookmarkCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AIAvatar from "./AIAvatar";
 import ChatLog from "./ChatLog";
@@ -7,6 +7,7 @@ import { toast } from "@/hooks/use-toast";
 import { useAICharacters } from "@/hooks/useAICharacters";
 import { useSaveConversationLog } from "@/hooks/useSaveConversationLog";
 import { useUser } from "@clerk/clerk-react";
+import { useFavorites } from "@/hooks/useFavorites";
 
 // Define Message type
 type Message = {
@@ -40,6 +41,23 @@ const VoiceChatPanel = () => {
   const startTimeRef = useRef<string>(new Date().toISOString());
   const { mutate: saveConversationLog } = useSaveConversationLog();
 
+  // ---- Favorites logic ----
+  const { favorites, addFavorite, removeFavorite, isAdding, isRemoving } = useFavorites(user?.id);
+  const ai = aiCharacters?.[currentAI];
+  // Check if current AI is favorited
+  const isFavorited = !!favorites?.some((fav) => fav.character_id === ai?.id);
+
+  const handleToggleFavorite = () => {
+    if (!user?.id || !ai?.id) return;
+    if (isFavorited) {
+      removeFavorite(ai.id);
+      toast({ title: "Removed from Favorites", description: `${ai.name} removed from your favorites`, variant: "default" });
+    } else {
+      addFavorite(ai.id);
+      toast({ title: "Added to Favorites", description: `${ai.name} added to your favorites!`, variant: "default" });
+    }
+  };
+
   if (isLoading) {
     return <div className="py-20 text-center">Loading AI characters...</div>;
   }
@@ -59,8 +77,6 @@ const VoiceChatPanel = () => {
       </div>
     );
   }
-
-  const ai = aiCharacters[currentAI];
 
   const handleSend = () => {
     if (!input.trim()) return;
@@ -183,6 +199,7 @@ const VoiceChatPanel = () => {
       className="w-full grid grid-cols-12 gap-8 p-8 rounded-2xl shadow-2xl bg-white/80 backdrop-blur-lg animate-fade-in"
       style={{ minHeight: 440 }}
     >
+      {/* Left column ("You") */}
       <div className="col-span-3 flex flex-col items-center justify-center gap-6 border-r">
         <div className="rounded-full bg-gradient-to-tr from-gray-400 to-slate-200 shadow-md p-5">
           <span className="text-2xl font-semibold text-gray-700 select-none">
@@ -194,6 +211,7 @@ const VoiceChatPanel = () => {
           <span>Mic input (simulated)</span>
         </div>
       </div>
+      {/* Chat column */}
       <div className="col-span-6 flex flex-col justify-between gap-4">
         <div className="flex-1">
           <ChatLog messages={messages} />
@@ -229,12 +247,23 @@ const VoiceChatPanel = () => {
           </Button>
         </form>
       </div>
+      {/* AI column & bookmark button */}
       <div className="col-span-3 flex flex-col items-center justify-center gap-4 border-l">
         <AIAvatar
           name={ai.name}
           personality={ai.personality}
           avatarColor={ai.avatar_color || "from-fuchsia-500 to-rose-400"}
         />
+        <Button
+          onClick={handleToggleFavorite}
+          className="flex items-center gap-2 text-fuchsia-600 font-semibold"
+          type="button"
+          variant="ghost"
+          disabled={isAdding || isRemoving}
+        >
+          {isFavorited ? <BookmarkCheck size={20} /> : <Bookmark size={20} />}
+          {isFavorited ? "Bookmarked" : "Bookmark"}
+        </Button>
         <Button
           onClick={handleNextAI}
           className="bg-pink-400 hover:bg-pink-500 text-white flex gap-2 items-center transition"
