@@ -24,8 +24,11 @@ export function useFavorites(userId: string | undefined) {
         .eq("user_id", userId)
         .order("created_at", { ascending: true });
       if (error) throw error;
-      // A loose cast since supabase/types doesn't know about the table
-      return (data || []) as Favorite[];
+      // Defensive check: only return data if it's an array, else []
+      if (Array.isArray(data)) {
+        return data as Favorite[];
+      }
+      return [];
     },
     enabled: !!userId,
   });
