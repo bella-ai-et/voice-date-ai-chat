@@ -97,10 +97,11 @@ const VoiceChatPanel = () => {
 
   const handleNextAI = () => {
     // Store conversation transcript before switching, if user is logged in
-    if (user && ai && messages.length > 1) {
+    if (user && user.id && ai && messages.length > 1) {
       const transcript = messages.map(({ from, text }) => `${from}: ${text}`).join("\n");
       const now = new Date().toISOString();
       saveConversationLog({
+        user_id: user.id,
         character_id: ai.id,
         start_time: startTimeRef.current,
         end_time: now,
