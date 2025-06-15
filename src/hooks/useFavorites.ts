@@ -26,7 +26,8 @@ export function useFavorites(userId: string | undefined) {
       if (error) throw error;
       // Defensive check: only return data if it's an array, else []
       if (Array.isArray(data)) {
-        return data as Favorite[];
+        // TS fix: cast through unknown first
+        return data as unknown as Favorite[];
       }
       return [];
     },
