@@ -1,14 +1,17 @@
-// Update this page (the content is just a fallback if you fail to update the page)
 
-const Index = () => {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
-    </div>
-  );
-};
+import Header from "@/components/Header";
+import VoiceChatPanel from "@/components/VoiceChatPanel";
+
+const Index = () => (
+  <div className="min-h-screen w-full flex flex-col bg-gradient-to-br from-pink-100 via-fuchsia-100 to-purple-50">
+    <Header />
+    <main className="flex-grow flex flex-col items-center justify-center">
+      <VoiceChatPanel />
+    </main>
+    <footer className="pb-8 pt-12 text-center text-xs text-gray-400 opacity-70">
+      Prototype – AI Speed Dating Practice · <span className="font-semibold">Lovable</span> + shadcn/ui + Tailwind
+    </footer>
+  </div>
+);
 
 export default Index;
