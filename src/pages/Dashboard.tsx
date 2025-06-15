@@ -10,7 +10,7 @@ const Dashboard = () => {
   return (
     <>
       <SignedOut>
-        <RedirectToSignIn fallbackRedirectUrl="/dashboard" />
+        <RedirectToSignIn signInFallbackRedirectUrl="/dashboard" />
       </SignedOut>
       <SignedIn>
         <div className="flex flex-col items-center gap-8 py-12 px-4">
@@ -30,3 +30,4 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+

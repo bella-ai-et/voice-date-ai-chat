@@ -6,7 +6,7 @@ const SpeedDate = () => {
   return (
     <>
       <SignedOut>
-        <RedirectToSignIn fallbackRedirectUrl="/speed-date" />
+        <RedirectToSignIn signInFallbackRedirectUrl="/speed-date" />
       </SignedOut>
       <SignedIn>
         <div className="flex flex-col min-h-screen bg-gradient-to-br from-pink-100 via-fuchsia-100 to-purple-50">
@@ -20,3 +20,4 @@ const SpeedDate = () => {
 };
 
 export default SpeedDate;
+
