@@ -2,6 +2,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
+// Local fallback type since supabase/types.ts does NOT include "favorites"
 export type Favorite = {
   id: string;
   character_id: string;
@@ -12,17 +13,19 @@ export type Favorite = {
 export function useFavorites(userId: string | undefined) {
   const queryClient = useQueryClient();
 
+  // Fetch favorites for userId
   const { data, isLoading, error } = useQuery({
     queryKey: ["favorites", userId],
     queryFn: async (): Promise<Favorite[]> => {
       if (!userId) return [];
       const { data, error } = await supabase
-        .from("favorites")
+        .from("favorites" as any)
         .select("*")
         .eq("user_id", userId)
         .order("created_at", { ascending: true });
       if (error) throw error;
-      return data || [];
+      // A loose cast since supabase/types doesn't know about the table
+      return (data || []) as Favorite[];
     },
     enabled: !!userId,
   });
@@ -30,9 +33,10 @@ export function useFavorites(userId: string | undefined) {
   // Add favorite
   const addFavorite = useMutation({
     mutationFn: async (characterId: string) => {
-      const { error } = await supabase.from("favorites").insert([
-        { user_id: userId, character_id: characterId },
-      ]);
+      if (!userId) throw new Error("Not logged in");
+      const { error } = await supabase
+        .from("favorites" as any)
+        .insert([{ user_id: userId, character_id: characterId }]);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -43,8 +47,9 @@ export function useFavorites(userId: string | undefined) {
   // Remove favorite
   const removeFavorite = useMutation({
     mutationFn: async (characterId: string) => {
+      if (!userId) throw new Error("Not logged in");
       const { error } = await supabase
-        .from("favorites")
+        .from("favorites" as any)
         .delete()
         .eq("user_id", userId)
         .eq("character_id", characterId);
