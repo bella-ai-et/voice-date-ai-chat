@@ -5,31 +5,7 @@ import { Button } from "@/components/ui/button";
 import AIAvatar from "./AIAvatar";
 import ChatLog from "./ChatLog";
 import { toast } from "@/hooks/use-toast";
-
-// Sample personalities (could be loaded from DB in the future)
-const AI_PERSONALITIES = [
-  {
-    name: "Sophia",
-    personality: "The Adventurous World-Traveler 🌍",
-    avatarColor: "from-purple-400 to-pink-400",
-  },
-  {
-    name: "Maya",
-    personality: "The Playful Bookworm 📚",
-    avatarColor: "from-fuchsia-500 to-rose-400",
-  },
-  {
-    name: "Chloe",
-    personality: "The Calm Listener 🍃",
-    avatarColor: "from-pink-500 to-purple-400",
-  },
-];
-
-const SAMPLE_GREETING = [
-  "Hi there! What brings you to this speed dating event?",
-  "Hey! Looking for some fun conversation?",
-  "Hello! What's the most exciting thing you've done recently?",
-];
+import { useAICharacters } from "@/hooks/useAICharacters";
 
 // Define Message type
 type Message = {
@@ -38,7 +14,14 @@ type Message = {
   text: string;
 };
 
+const SAMPLE_GREETING = [
+  "Hi there! What brings you to this speed dating event?",
+  "Hey! Looking for some fun conversation?",
+  "Hello! What's the most exciting thing you've done recently?",
+];
+
 const VoiceChatPanel = () => {
+  const { data: aiCharacters, isLoading, error } = useAICharacters();
   const [currentAI, setCurrentAI] = useState(0);
   const [listening, setListening] = useState(false);
   const [input, setInput] = useState("");
@@ -51,17 +34,36 @@ const VoiceChatPanel = () => {
   ]);
   const [msgId, setMsgId] = useState(1);
 
-  const ai = AI_PERSONALITIES[currentAI];
+  if (isLoading) {
+    return <div className="py-20 text-center">Loading AI characters...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="py-20 text-red-500 text-center">
+        Failed to load AI characters. Please try again.
+      </div>
+    );
+  }
+
+  if (!aiCharacters || aiCharacters.length === 0) {
+    return (
+      <div className="py-20 text-center text-fuchsia-700">
+        No AI characters found. Please add them in the database.
+      </div>
+    );
+  }
+
+  const ai = aiCharacters[currentAI];
 
   const handleSend = () => {
     if (!input.trim()) return;
-    // Push user message
     setMessages((msgs) => [
       ...msgs,
       { id: msgId, from: "user", text: input },
     ]);
     setMsgId((id) => id + 1);
-    // Simulate generic AI response
+
     setTimeout(() => {
       setMessages((msgs) => [
         ...msgs,
@@ -81,13 +83,14 @@ const VoiceChatPanel = () => {
     if (!listening) {
       toast({
         title: "🎤 Voice record (simulated)",
-        description: "Pretend you are speaking – (real voice support coming soon!)",
+        description:
+          "Pretend you are speaking – (real voice support coming soon!)",
       });
     }
   };
 
   const handleNextAI = () => {
-    setCurrentAI((idx) => (idx + 1) % AI_PERSONALITIES.length);
+    setCurrentAI((idx) => (idx + 1) % aiCharacters.length);
     setMessages([
       {
         id: 0,
@@ -98,7 +101,7 @@ const VoiceChatPanel = () => {
     setMsgId(1);
     toast({
       title: "Switched date!",
-      description: `Now talking with ${AI_PERSONALITIES[(currentAI + 1) % AI_PERSONALITIES.length].name}`,
+      description: `Now talking with ${aiCharacters[(currentAI + 1) % aiCharacters.length].name}`,
     });
   };
 
@@ -107,17 +110,17 @@ const VoiceChatPanel = () => {
       className="w-full grid grid-cols-12 gap-8 p-8 rounded-2xl shadow-2xl bg-white/80 backdrop-blur-lg animate-fade-in"
       style={{ minHeight: 440 }}
     >
-      {/* Left User column */}
       <div className="col-span-3 flex flex-col items-center justify-center gap-6 border-r">
         <div className="rounded-full bg-gradient-to-tr from-gray-400 to-slate-200 shadow-md p-5">
-          <span className="text-2xl font-semibold text-gray-700 select-none">You</span>
+          <span className="text-2xl font-semibold text-gray-700 select-none">
+            You
+          </span>
         </div>
         <div className="flex flex-col items-center text-sm text-gray-400 opacity-80 animate-fade-in">
           <MicOff size={30} className="text-gray-300" />
           <span>Mic input (simulated)</span>
         </div>
       </div>
-      {/* Main chat panel */}
       <div className="col-span-6 flex flex-col justify-between gap-4">
         <div className="flex-1">
           <ChatLog messages={messages} />
@@ -153,12 +156,11 @@ const VoiceChatPanel = () => {
           </Button>
         </form>
       </div>
-      {/* AI woman column */}
       <div className="col-span-3 flex flex-col items-center justify-center gap-4 border-l">
         <AIAvatar
           name={ai.name}
           personality={ai.personality}
-          avatarColor={ai.avatarColor}
+          avatarColor={ai.avatar_color || "from-fuchsia-500 to-rose-400"}
         />
         <Button
           onClick={handleNextAI}
@@ -172,4 +174,3 @@ const VoiceChatPanel = () => {
 };
 
 export default VoiceChatPanel;
-
