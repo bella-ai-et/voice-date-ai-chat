@@ -71,6 +71,47 @@ export type Database = {
           },
         ]
       }
+      conversation_logs: {
+        Row: {
+          ai_feedback: string | null
+          character_id: string
+          conversation_transcript: string
+          created_at: string
+          end_time: string | null
+          id: string
+          start_time: string
+          user_id: string
+        }
+        Insert: {
+          ai_feedback?: string | null
+          character_id: string
+          conversation_transcript: string
+          created_at?: string
+          end_time?: string | null
+          id?: string
+          start_time?: string
+          user_id: string
+        }
+        Update: {
+          ai_feedback?: string | null
+          character_id?: string
+          conversation_transcript?: string
+          created_at?: string
+          end_time?: string | null
+          id?: string
+          start_time?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_logs_character_id_fkey"
+            columns: ["character_id"]
+            isOneToOne: false
+            referencedRelation: "ai_characters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null

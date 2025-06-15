@@ -1,11 +1,12 @@
-
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Mic, MicOff, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AIAvatar from "./AIAvatar";
 import ChatLog from "./ChatLog";
 import { toast } from "@/hooks/use-toast";
 import { useAICharacters } from "@/hooks/useAICharacters";
+import { useSaveConversationLog } from "@/hooks/useSaveConversationLog";
+import { useUser } from "@clerk/clerk-react";
 
 // Define Message type
 type Message = {
@@ -33,6 +34,11 @@ const VoiceChatPanel = () => {
     },
   ]);
   const [msgId, setMsgId] = useState(1);
+
+  // Conversation logging
+  const { user } = useUser();
+  const startTimeRef = useRef<string>(new Date().toISOString());
+  const { mutate: saveConversationLog } = useSaveConversationLog();
 
   if (isLoading) {
     return <div className="py-20 text-center">Loading AI characters...</div>;
@@ -90,6 +96,21 @@ const VoiceChatPanel = () => {
   };
 
   const handleNextAI = () => {
+    // Store conversation transcript before switching, if user is logged in
+    if (user && ai && messages.length > 1) {
+      const transcript = messages.map(({ from, text }) => `${from}: ${text}`).join("\n");
+      const now = new Date().toISOString();
+      saveConversationLog({
+        character_id: ai.id,
+        start_time: startTimeRef.current,
+        end_time: now,
+        conversation_transcript: transcript,
+      });
+      startTimeRef.current = now;
+    } else {
+      startTimeRef.current = new Date().toISOString();
+    }
+
     setCurrentAI((idx) => (idx + 1) % aiCharacters.length);
     setMessages([
       {
